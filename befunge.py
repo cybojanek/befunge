@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import sys
 import random
+import argparse
+import time
+import termcolor
 
 class StackException(Exception):
     pass
@@ -103,7 +106,10 @@ class BefungeText(object):
             self.text.append(value)
 
     def get(self, x, y):
-        if(x >= self.number_of_rows() or y >= self.length_of_row(x)):
+        """Implement 'g' command and get field
+
+        """
+        if(x >= self._number_of_rows() or y >= self._length_of_row(x)):
             return ' '
         else:
             return self.text[x][y]
@@ -143,21 +149,21 @@ class BefungeText(object):
         x, y = pc
         # If left or right, just mod with current row length
         if direction == Direction.RIGHT:
-            return (x, (y+1) % self.length_of_row(x))
+            return (x, (y+1) % self._length_of_row(x))
         # Negative values work the way we want :-)
         elif direction == Direction.LEFT:
-            return (x, (y-1) % self.length_of_row(x))
+            return (x, (y-1) % self._length_of_row(x))
         # Down / up might require row skipping
         else:
             if direction == Direction.DOWN:
                 increment = 1
             if direction == Direction.UP:
                 increment = -1
-            x = (x + increment) % self.number_of_rows()
+            x = (x + increment) % self._number_of_rows()
             # Skip rows while they don't have an opcode at that y
             # We might get stuck here...
-            while(y >= self.length_of_row(x)):
-                x = (x + increment) % self.number_of_rows()
+            while(y >= self._length_of_row(x)):
+                x = (x + increment) % self._number_of_rows()
             return (x,y)
 
     def __str__(self):
@@ -168,16 +174,30 @@ class BefungeText(object):
 
 class Direction():
     LEFT, RIGHT, DOWN, UP = "LEFT", "RIGHT", "DOWN", "UP"
+    ALL = [LEFT,RIGHT,DOWN,UP]
+
+class Color():
+    @staticmethod
+    def blue(x):
+        return termcolor.colored(x, 'blue')
+    @staticmethod
+    def grey_on_green(x):
+        return termcolor.colored(x, 'grey', 'on_green')
+    @staticmethod
+    def yellow_dark(x):
+        return termcolor.colored(x, 'yellow', attrs=['dark'])
 
 class BefungeProgram(object):
     """Holds the state of a befunge program and runs it
 
     """
-    def __init__(self, f):
+    def __init__(self, f, show_steps=False, operations_per_second=0):
         """Initialize text with file, empty stack and (0,0) pc
 
         Parameters:
         f - file
+        show_steps - output program status, default=False
+        operations_per_second - how many befunge ops a second, default=unlimited
 
         """
         self.text = BefungeText(f)
@@ -187,6 +207,9 @@ class BefungeProgram(object):
         self.op = ' '
         self.ascii_mode = False
         self.finished = False
+        self.show_steps = show_steps
+        self.operations_per_second = operations_per_second
+        self.stdout_log = ''
 
     def step(self):
         """Step through another iteration.
@@ -211,10 +234,39 @@ class BefungeProgram(object):
 
 
     def run(self):
+        """Step through program
+
+        """
         while not self.finished:
+            if self.show_steps:
+                self.show_program()
+            if self.operations_per_second != 0:
+                time.sleep(1.0/self.operations_per_second)
             self.step()
         print ""
-        #print self.stack
+
+    def show_program(self):
+        """Print terminal colored program status
+
+        """
+        # Divider
+        print Color.blue('#'*80)
+        # Code header
+        print "%s" % Color.yellow_dark("Code:")
+        # Code
+        for i in xrange(len(self.text.text)):
+            row = self.text.text[i]
+            # This line contains our pc
+            if self.pc[0] == i:
+                # Make copy and replace pc with highlighted pc
+                row = row[::]
+                row[self.pc[1]] = Color.grey_on_green(row[self.pc[1]])
+            print ''.join(row)
+        # Stack
+        print "%s %s" % (Color.yellow_dark("Stack:"), self.stack)
+        # Aggregated stdout
+        print "%s %s" % (Color.yellow_dark("Stdout:"), self.stdout_log),
+        print ""
 
     def pseudo_op_ascii_mode(program):
         """Get int value of ascii char at current pc location
@@ -303,7 +355,7 @@ class BefungeProgram(object):
     def op_move_random(program):
         """Change direction to random
         """
-        program.direction = [Direction.LEFT, Direction.RIGHT, Direction.UP, Direction.DOWN][random.randint(0,3)]
+        program.direction = Direction.ALL[random.randint(0,len(Direction.ALL)-1)]
 
     def op_move_horizontal(program):
         """Pop value, move right if 0, otherwise left
@@ -347,14 +399,20 @@ class BefungeProgram(object):
     def op_print_int(program):
         """Pop a and print as integer
         """
-        a = program.stack.pop()
-        sys.stdout.write(str(a) + ' ')
+        a = str(program.stack.pop()) + ' '
+        if program.show_steps:
+            program.stdout_log += a
+        else:
+            sys.stdout.write(a)
 
     def op_print_chr(program):
         """Pop a and print as chr
         """
-        a = program.stack.pop()
-        sys.stdout.write(chr(a))
+        a = chr(program.stack.pop())
+        if program.show_steps:
+            program.stdout_log += a
+        else:
+            sys.stdout.write(chr(a))
 
     def op_trampoline(program):
         """Skip next cell
@@ -416,8 +474,10 @@ class BefungeProgram(object):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print "befunge.py FILE"
-    else:
-        p = BefungeProgram(sys.argv[1])
-        p.run()
+    parser = argparse.ArgumentParser(description='Befunge Interpreter')
+    parser.add_argument('file', help='Befunge program file')
+    parser.add_argument('-s', '--steps', action='store_true', help='Show program steps')
+    parser.add_argument('--ops', type=int, help='operations/second', default=0)
+    args = parser.parse_args()
+    p = BefungeProgram(args.file,show_steps=args.steps,operations_per_second=args.ops)
+    p.run()
