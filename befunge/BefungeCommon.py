@@ -12,6 +12,15 @@ class OpCodeNotImplemented(Exception):
 class Direction():
     LEFT, RIGHT, DOWN, UP = "LEFT", "RIGHT", "DOWN", "UP"
     ALL = [LEFT,RIGHT,DOWN,UP]
+    OPPOSITE = {
+        LEFT: RIGHT,
+        RIGHT: LEFT,
+        UP: DOWN,
+        DOWN: UP
+    }
+
+class BefungeMode(object):
+    OP, ASCII, FINISHED = "OP", "ASCII", "FINISHED"
 
 class Color():
     @staticmethod
