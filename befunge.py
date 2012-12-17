@@ -53,6 +53,9 @@ class BefungeStack(object):
     def __str__(self):
         return ','.join([str(x) for x in self.stack])
 
+    def __repr__(self):
+        return ','.join([repr(chr(x)) if x<=255 and x>=0 else str(x) for x in self.stack])
+
 class BefungeText(object):
     """Holds contents of befunge program.
 
@@ -125,17 +128,20 @@ class BefungeText(object):
         z - value
 
         """
+        # If its a visible char, then convert it to that
+        if z > 31 and z < 127:
+            z = chr(z)
         # If the put value is beyond our current amount of rows
         if(x >= self._number_of_rows()):
             # Add dummy empty rows until row
             for r in xrange(self._number_of_rows(), x):
                 self._add_row()
             # Add row, left padded with whitespace
-            self._add_row(list("%s%s" % (" " * (y-1), z)))
+            self._add_row(list("%s%s" % (" " * (y), z)))
         # Else if y is past the current row length
-        elif(y >= self.length_of_row(x)):
+        elif(y >= self._length_of_row(x)):
             # Append whitespace and value
-            self.text[x] = list("%s%s%s" % (self.text[x], " " * (y - self._length_of_row(x)), z))
+            self.text[x] = self.text[x] + list("%s%s" % (" " * (y - self._length_of_row(x)), z))
         # Otherwise modify whats currently there
         else:
             self.text[x][y] = z
@@ -169,7 +175,7 @@ class BefungeText(object):
     def __str__(self):
         ret = ''
         for row in self.text:
-            ret += '%s\n' % (''.join(row))
+            ret += '%s\n' % (''.join([str(x) for x in row]))
         return ret
 
 class Direction():
@@ -261,9 +267,10 @@ class BefungeProgram(object):
                 # Make copy and replace pc with highlighted pc
                 row = row[::]
                 row[self.pc[1]] = Color.grey_on_green(row[self.pc[1]])
-            print ''.join(row)
+            print ''.join([str(x) for x in row])
         # Stack
-        print "%s %s" % (Color.yellow_dark("Stack:"), self.stack)
+        print "%s %s" % (Color.yellow_dark("Stack N:"), self.stack)
+        print "%s %r" % (Color.yellow_dark("Stack A:"), self.stack)
         # Aggregated stdout
         print "%s %s" % (Color.yellow_dark("Stdout:"), self.stdout_log),
         print ""
@@ -412,13 +419,30 @@ class BefungeProgram(object):
         if program.show_steps:
             program.stdout_log += a
         else:
-            sys.stdout.write(chr(a))
+            sys.stdout.write(a)
 
     def op_trampoline(program):
         """Skip next cell
         """
         program.pc = program.text.get_next_pc(program.pc, program.direction)
 
+    def op_put(program):
+        """Pop y,x,v and put value v at position x,y
+        """
+        stack = program.stack
+        y,x,v = stack.pop(), stack.pop(), stack.pop()
+        program.text.put(y,x,v)
+
+    def op_get(program):
+        """Pop y,x and push ascii value of that char onto stack
+        """
+        stack = program.stack
+        y,x = stack.pop(), stack.pop()
+        v = program.text.get(y,x)
+        if type(v) is str:
+            stack.push(ord(v))
+        else:
+            stack.push(v)
 
     def op_input_int(program):
         """Ask user for integer input and push on stack
@@ -457,6 +481,7 @@ class BefungeProgram(object):
         # Math
         '+': op_addition, '-': op_subtraction,
         '*': op_multiplication, '/': op_division, '%': op_modulo,
+        '!': op_logical_not, '`': op_greater_than,
         # Movement
         '>': op_move_right, '<': op_move_left, '^': op_move_up, 'v': op_move_down,
         '?': op_move_random, '_': op_move_horizontal, '|': op_move_vertical,
@@ -465,7 +490,7 @@ class BefungeProgram(object):
         # Print
         '.': op_print_int, ',': op_print_chr,
         # Code
-        '#': op_trampoline, 'p': None, 'g': None,
+        '#': op_trampoline, 'p': op_put, 'g': op_get,
         # Input
         '&': op_input_int, '~': op_input_chr,
         ' ': op_noop,
@@ -477,7 +502,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Befunge Interpreter')
     parser.add_argument('file', help='Befunge program file')
     parser.add_argument('-s', '--steps', action='store_true', help='Show program steps')
-    parser.add_argument('--ops', type=int, help='operations/second', default=0)
+    parser.add_argument('-o', '--ops', type=int, help='operations/second', default=0)
     args = parser.parse_args()
     p = BefungeProgram(args.file,show_steps=args.steps,operations_per_second=args.ops)
     p.run()
