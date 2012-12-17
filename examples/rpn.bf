@@ -5,7 +5,7 @@ v < Do operation                          >
 v < Print result or error if bad operator >
 v  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 v        ,+55.,"="<
-v           ,+55,  <
+v         $$,+55,  <
 >&&~ v
      >:59*2+-#v_$/^
      v        <
