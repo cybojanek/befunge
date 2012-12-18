@@ -134,7 +134,7 @@ class BefungeOps(object):
         else:
             pass
 
-    def op_toggle_push_ascii(program, thread):
+    def op_toggle_ascii(program, thread):
         """Toggle program ascii mode
         """
         if thread.mode == BefungeMode.ASCII:
@@ -188,6 +188,16 @@ class BefungeOps(object):
         """
         thread.pc = program.text.get_next_pc(thread.pc, thread.direction, skip=False)
       
+    def op_jump_over(program, thread):
+        """Toggle jump mode caused by ;
+        """
+        # Get next pc until we hit another ;
+        while True:
+            thread.pc = program.text.get_next_pc(thread.pc, thread.direction)
+            if program.text.get(*thread.pc) == ';':
+                thread.pc = program.text.get_next_pc(thread.pc, thread.direction)
+                return
+
     def op_put(program, thread):
         """Pop y,x,v and put value v at position x,y
         """
@@ -264,7 +274,7 @@ class BefungeOps(object):
         '_': op_move_horizontal, '|': op_move_vertical,
         '?': op_move_random,
         # PC
-        '#': op_trampoline, ';': op_not_implemented,
+        '#': op_trampoline, ';': op_jump_over,
         'j': op_not_implemented,'k': op_not_implemented,
         # Stack
         ':': op_duplicate, '\\': op_swap, 
@@ -284,7 +294,7 @@ class BefungeOps(object):
         '\'': op_not_implemented,
         '(': op_not_implemented, ')': op_not_implemented,
         '{': op_not_implemented, '}': op_not_implemented,
-        '"': op_toggle_push_ascii,
+        '"': op_toggle_ascii,
         ' ': op_noop, 'z': op_noop,
         'x': op_not_implemented,
         'y': op_not_implemented,

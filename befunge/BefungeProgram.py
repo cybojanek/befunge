@@ -64,6 +64,11 @@ class BefungeProgram(object):
                     else:
                         BefungeOps.pseudo_op_ascii_mode(self, thread)
                 thread.pc = self.text.get_next_pc(thread.pc, thread.direction)
+                # Skip jump_overs with zero ticks
+                # Handled here, so that next op is highlighted
+                # instea of first ;
+                while self.text.get(*thread.pc) == ';':
+                    BefungeOps.op_map[';'](self, thread)
             # Clear out finished threads
             self.threads = [thread for thread in self.threads if not thread.mode == BefungeMode.FINISHED]
 

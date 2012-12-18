@@ -31,9 +31,8 @@ class Direction():
         DOWN: LEFT
     }
 
-
 class BefungeMode(object):
-    OP, ASCII, FINISHED = "OP", "ASCII", "FINISHED"
+    OP, ASCII, JUMP, FINISHED = "OP", "ASCII", "JUMP", "FINISHED"
 
 class Color():
     @staticmethod
