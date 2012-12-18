@@ -4,6 +4,7 @@ from BefungeCommon import Direction, BefungeMode
 
 class BefungeOps(object):
   
+    @staticmethod
     def pseudo_op_ascii_mode(program, thread):
         """Get int value of ascii char at current pc location
         """
@@ -114,7 +115,7 @@ class BefungeOps(object):
         """Toggle program ascii mode
         """
         if thread.mode == BefungeMode.ASCII:
-            thread.mode = BefungeMode.Op
+            thread.mode = BefungeMode.OP
         else:
             thread.mode = BefungeMode.ASCII
        

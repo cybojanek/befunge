@@ -60,7 +60,7 @@ class BefungeProgram(object):
             elif thread.mode == BefungeMode.ASCII:
                 # End ascii mode
                 if thread.op == '"':
-                    BefungeOps.op_toggle_push_ascii(self, thread)
+                    BefungeOps.op_map['"'](self, thread)
                 # Read in with peusdo opcode
                 else:
                     BefungeOps.pseudo_op_ascii_mode(self, thread)
