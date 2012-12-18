@@ -10,5 +10,5 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--steps', action='store_true', help='Show program steps')
     parser.add_argument('-o', '--ops', type=int, help='operations/second', default=0)
     args = parser.parse_args()
-    p = BefungeProgram(args.file,show_steps=args.steps,operations_per_second=args.ops)
+    p = BefungeProgram(name=args.file,show_steps=args.steps,operations_per_second=args.ops)
     p.run()

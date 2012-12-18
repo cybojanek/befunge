@@ -1,4 +1,4 @@
-import sys
+import sys, random
 
 from BefungeCommon import Direction, BefungeMode
 
@@ -136,6 +136,11 @@ class BefungeOps(object):
         """Pop value from stack
         """
         thread.stack.pop()
+
+    def op_clear_stack(program, thread):
+        """Clear all values from stack
+        """
+        thread.stack.clear()
        
     def op_print_int(program, thread):
         """Pop a and print as integer
@@ -239,7 +244,7 @@ class BefungeOps(object):
         'j': op_not_implemented,'k': op_not_implemented,
         # Stack
         ':': op_duplicate, '\\': op_swap, 
-        '$': op_pop, 'n': op_not_implemented,
+        '$': op_pop, 'n': op_clear_stack,
         'u': op_not_implemented,
         # I/O
         '.': op_print_int, ',': op_print_chr,

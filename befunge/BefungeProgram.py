@@ -25,7 +25,7 @@ class BefungeProgram(object):
     """Holds the state of a befunge program and runs it
 
     """
-    def __init__(self, f, show_steps=False, operations_per_second=0):
+    def __init__(self, name=None, text=None, show_steps=False, operations_per_second=0):
         """Initialize text with file, empty stack and (0,0) pc
 
         Parameters:
@@ -35,38 +35,37 @@ class BefungeProgram(object):
 
         """
         self.threads = [BefungeThread((0,0),Direction.RIGHT)]
-        ############
-        self.text = BefungeText(f)
-        #############
+        self.text = BefungeText(name,text)
         self.stdout_log = ''
         self.show_steps = show_steps
         self.operations_per_second = operations_per_second
 
-    def step(self):
+    def step(self, steps=1):
         """Step through another iteration.
         Get pc value and tell handl_operator to run it
 
         """
-        # Make duplicate in case we split
-        # TODO: Is there a nicer way?
-        for thread in self.threads[:]:
-            thread.op = self.text.get(*thread.pc)
-            # In op mode, so check opcode
-            if thread.mode == BefungeMode.OP and not thread.op in BefungeOps.op_map:
-                raise IllegalOpCodeException('%s,%s: %s' % (self.pc[0],self.pc[1], self.op))
-            elif thread.mode == BefungeMode.OP:
-                BefungeOps.op_map[thread.op](self, thread)
-            # In ascii mode
-            elif thread.mode == BefungeMode.ASCII:
-                # End ascii mode
-                if thread.op == '"':
-                    BefungeOps.op_map['"'](self, thread)
-                # Read in with peusdo opcode
-                else:
-                    BefungeOps.pseudo_op_ascii_mode(self, thread)
-            thread.pc = self.text.get_next_pc(thread.pc, thread.direction)
-        # Clear out finished threads
-        self.threads = [thread for thread in self.threads if not thread.mode == BefungeMode.FINISHED]
+        for step in xrange(steps):
+            # Make duplicate in case we split
+            # TODO: Is there a nicer way?
+            for thread in self.threads[:]:
+                thread.op = self.text.get(*thread.pc)
+                # In op mode, so check opcode
+                if thread.mode == BefungeMode.OP and not thread.op in BefungeOps.op_map:
+                    raise IllegalOpCodeException('%s,%s: %s' % (self.pc[0],self.pc[1], self.op))
+                elif thread.mode == BefungeMode.OP:
+                    BefungeOps.op_map[thread.op](self, thread)
+                # In ascii mode
+                elif thread.mode == BefungeMode.ASCII:
+                    # End ascii mode
+                    if thread.op == '"':
+                        BefungeOps.op_map['"'](self, thread)
+                    # Read in with peusdo opcode
+                    else:
+                        BefungeOps.pseudo_op_ascii_mode(self, thread)
+                thread.pc = self.text.get_next_pc(thread.pc, thread.direction)
+            # Clear out finished threads
+            self.threads = [thread for thread in self.threads if not thread.mode == BefungeMode.FINISHED]
 
     def split(self, thread):
         """Create another thread with same PC but opposite direction
