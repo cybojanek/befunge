@@ -77,7 +77,6 @@ def test_pc():
 	# # # # 1
 	""")
 	program = BefungeProgram(text=a)
-	# Test trampoline
 	program.step(4)
 	assert program.threads[0].pc == (8,0)
 
@@ -137,7 +136,7 @@ def test_movement_logic():
 	    1
 	    #
 	    >|
-	    | @
+	    |1
 	""")
 	program = BefungeProgram(text=a)
 	thread = program.threads[0]
@@ -188,7 +187,7 @@ def test_movement_turns():
 	 ]  ]    10w
 	[]  ][     0
 	[    [     1
-	           w 11w @
+	           w 11w 1
 	""")
 	program = BefungeProgram(text=a)
 	thread = program.threads[0]
@@ -203,9 +202,9 @@ def test_movement_turns():
 	assert thread.pc == (0,2)
 	# v [ >
 	program.step()
-	assert thread.pc == (1,2)
+	assert thread.pc == (5,2)
 	# > [ ^
-	program.step(5)
+	program.step()
 	assert thread.pc == (5,1)
 	# ^ [ <
 	program.step()
@@ -215,13 +214,13 @@ def test_movement_turns():
 	assert thread.pc == (4,0)
 	# ^ ] >
 	program.step()
-	assert thread.pc == (5,0)
+	assert thread.pc == (9,0)
 	# 10w ]
-	program.step(7)
+	program.step(3)
 	assert thread.pc == (11,1)
 	# 01w [
 	program.step(3)
-	assert thread.pc == (12,3)
+	assert thread.pc == (13,3)
 	# 11w
-	program.step(4)
-	assert thread.pc == (16,3)
+	program.step(3)
+	assert thread.pc == (17,3)

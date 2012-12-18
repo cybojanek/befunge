@@ -67,7 +67,7 @@ class BefungeText(object):
         if(y >= self._number_of_rows() or x >= self._length_of_row(y)):
             return ' '
         else:
-            return self.text[y  ][x]
+            return self.text[y][x]
 
     def put(self, x, y, z):
         """Implment 'p' command and alter text
@@ -98,31 +98,32 @@ class BefungeText(object):
         else:
             self.text[y][x] = z
 
-    def get_next_pc(self, pc, direction):
+    def get_next_pc(self, pc, direction, skip=True):
         """Get the next pc based on direction
         Wrap around in x,y directions
         Skip sparse rows, but not sparse columns
 
         """
-        x, y = pc
-        # If left or right, just mod with current row length
-        if direction == Direction.RIGHT:
-            return ((x+1) % self._length_of_row(y), y)
-        # Negative values work the way we want :-)
-        elif direction == Direction.LEFT:
-            return ((x-1) % self._length_of_row(y), y)
-        # Down / up might require row skipping
-        else:
-            if direction == Direction.DOWN:
-                increment = 1
-            if direction == Direction.UP:
-                increment = -1
-            y = (y + increment) % self._number_of_rows()
-            # Skip rows while they don't have an opcode at that y
-            # We might get stuck here...
-            while(x >= self._length_of_row(y)):
-                y = (y + increment) % self._number_of_rows()
-            return (x,y)
+        op = ' '
+        x,y = pc
+        # For befunge98, we skip all whitespace with zero ticks
+        while op == ' ':
+            # If left or right, just mod with current row length
+            if direction == Direction.RIGHT:
+                x,y = ((x+1) % self._length_of_row(y), y)
+            # Negative values work the way we want :-)
+            elif direction == Direction.LEFT:
+                x,y = ((x-1) % self._length_of_row(y), y)
+            elif direction == Direction.DOWN:
+                x,y = (x, (y+1) % self._number_of_rows())
+            elif direction == Direction.UP:
+                x,y = (x, (y-1) % self._number_of_rows())
+            op = self.get(x,y)
+            # Don't skip whitespace
+            if not skip:
+                break
+            #print "%s,%s,%s,%s" % (op, pc, direction, op == ' ')
+        return (x,y)
 
     def __str__(self):
         ret = ''

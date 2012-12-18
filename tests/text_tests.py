@@ -63,7 +63,7 @@ def test_next_pc():
 	program = BefungeText(text=a)
 
 	# Check regular move right
-	assert program.get_next_pc((0,0), Direction.RIGHT) == (1,0)
+	assert program.get_next_pc((0,0), Direction.RIGHT) == (2,0)
 	# Check right wrap around
 	assert program.get_next_pc((2,0), Direction.RIGHT) == (0,0)
 	# Check regular move left
@@ -79,13 +79,13 @@ def test_next_pc():
 	""")
 	program = BefungeText(text=b)
 	# Check regular move up
-	assert program.get_next_pc((0,3), Direction.UP) == (0,2)
+	assert program.get_next_pc((0,3), Direction.UP) == (0,0)
 	# Check skip up
 	assert program.get_next_pc((0,2), Direction.UP) == (0,0)
 	# Check up wrap around
 	assert program.get_next_pc((0,0), Direction.UP) == (0,3)
 	# Chek skip down
-	assert program.get_next_pc((1,0), Direction.DOWN) == (1,2)
+	assert program.get_next_pc((1,0), Direction.DOWN) == (1,3)
 	# Check regular move down
 	assert program.get_next_pc((1,2), Direction.DOWN) == (1,3)
 	# Check down wrap around

@@ -186,7 +186,7 @@ class BefungeOps(object):
     def op_trampoline(program, thread):
         """Skip next cell
         """
-        thread.pc = program.text.get_next_pc(thread.pc, thread.direction)
+        thread.pc = program.text.get_next_pc(thread.pc, thread.direction, skip=False)
       
     def op_put(program, thread):
         """Pop y,x,v and put value v at position x,y
@@ -285,10 +285,9 @@ class BefungeOps(object):
         '(': op_not_implemented, ')': op_not_implemented,
         '{': op_not_implemented, '}': op_not_implemented,
         '"': op_toggle_push_ascii,
-        ' ': op_noop,
+        ' ': op_noop, 'z': op_noop,
         'x': op_not_implemented,
         'y': op_not_implemented,
-        'z': op_not_implemented,
         'r': op_not_implemented,
         'q': op_not_implemented
     }
