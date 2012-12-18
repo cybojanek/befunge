@@ -1,5 +1,6 @@
 import sys, random
 
+from BefungeCommon import OpCodeNotImplemented
 from BefungeCommon import Direction, BefungeMode
 
 class BefungeOps(object):
@@ -110,7 +111,29 @@ class BefungeOps(object):
             thread.direction = Direction.DOWN
         else:
             thread.direction = Direction.UP
-       
+
+    def op_turn_left(program, thread):
+        """Turn left on z-axis
+        """
+        thread.direction = Direction.TURN_LEFT[thread.direction]
+
+    def op_turn_right(program, thread):
+        """Turn right on z-axis
+        """
+        thread.direction = Direction.TURN_RIGHT[thread.direction]
+
+    def op_move_turn(program, thread):
+        """Pop a,b, if a<b then [ elif b>a then ] else nothing
+        """
+        stack = thread.stack
+        b,a = stack.pop(), stack.pop()
+        if a < b:
+            BefungeOps.op_map['['](program, thread)
+        elif b < a:
+            BefungeOps.op_map[']'](program, thread)
+        else:
+            pass
+
     def op_toggle_push_ascii(program, thread):
         """Toggle program ascii mode
         """
@@ -233,12 +256,13 @@ class BefungeOps(object):
         '+': op_addition, '-': op_subtraction,
         '*': op_multiplication, '/': op_division, '%': op_modulo,
         # Logic
-        '!': op_logical_not, '`': op_greater_than, 'w': op_not_implemented,
+        '!': op_logical_not, '`': op_greater_than, 'm': op_not_implemented,
         # Movement
         '>': op_move_right, '<': op_move_left, '^': op_move_up, 'v': op_move_down,
-        '?': op_move_random, '_': op_move_horizontal, '|': op_move_vertical,
-        '[': op_not_implemented, ']': op_not_implemented,
-        'h': op_not_implemented, 'l': op_not_implemented, 'm': op_not_implemented,
+        '[': op_turn_left, ']': op_turn_right, 'w': op_move_turn,
+        'h': op_not_implemented, 'l': op_not_implemented,
+        '_': op_move_horizontal, '|': op_move_vertical,
+        '?': op_move_random,
         # PC
         '#': op_trampoline, ';': op_not_implemented,
         'j': op_not_implemented,'k': op_not_implemented,

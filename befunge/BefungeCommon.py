@@ -18,6 +18,19 @@ class Direction():
         UP: DOWN,
         DOWN: UP
     }
+    TURN_LEFT = {
+        LEFT: DOWN,
+        RIGHT: UP,
+        UP: LEFT,
+        DOWN: RIGHT
+    }
+    TURN_RIGHT = {
+        LEFT: UP,
+        RIGHT: DOWN,
+        UP: RIGHT,
+        DOWN: LEFT
+    }
+
 
 class BefungeMode(object):
     OP, ASCII, FINISHED = "OP", "ASCII", "FINISHED"

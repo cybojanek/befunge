@@ -182,3 +182,46 @@ def test_movement_random():
 			elif rand == 1:
 				one = True
 		assert (zero,one) == (True,True)
+
+def test_movement_turns():
+	a = strip_program("""
+	 ]  ]    10w
+	[]  ][     0
+	[    [     1
+	           w 11w @
+	""")
+	program = BefungeProgram(text=a)
+	thread = program.threads[0]
+	# > ] v
+	program.step(2)
+	assert thread.pc == (1,1)
+	# v ] <
+	program.step()
+	assert thread.pc == (0,1)
+	# < [ v
+	program.step()
+	assert thread.pc == (0,2)
+	# v [ >
+	program.step()
+	assert thread.pc == (1,2)
+	# > [ ^
+	program.step(5)
+	assert thread.pc == (5,1)
+	# ^ [ <
+	program.step()
+	assert thread.pc == (4,1)
+	# < ] ^
+	program.step()
+	assert thread.pc == (4,0)
+	# ^ ] >
+	program.step()
+	assert thread.pc == (5,0)
+	# 10w ]
+	program.step(7)
+	assert thread.pc == (11,1)
+	# 01w [
+	program.step(3)
+	assert thread.pc == (12,3)
+	# 11w
+	program.step(4)
+	assert thread.pc == (16,3)
