@@ -101,7 +101,7 @@ class BefungeText(object):
     def get_next_pc(self, pc, direction, skip=True):
         """Get the next pc based on direction
         Wrap around in x,y directions
-        Skip sparse rows, but not sparse columns
+        Skip whitesapce by default
 
         """
         op = ' '
@@ -124,6 +124,20 @@ class BefungeText(object):
                 break
             #print "%s,%s,%s,%s" % (op, pc, direction, op == ' ')
         return (x,y)
+
+    def jump(self, pc, direction, j):
+        """Jump over that many cells
+
+        """
+        x,y = pc
+        if direction == Direction.RIGHT:
+            return ((x+j) % self._length_of_row(y), y)
+        elif direction == Direction.LEFT:
+            return ((x-j) % self._length_of_row(y), y)
+        elif direction == Direction.DOWN:
+            return (x, (y+j) % self._number_of_rows())
+        elif direction == Direction.UP:
+            return (x, (y-j) % self._number_of_rows())
 
     def __str__(self):
         ret = ''

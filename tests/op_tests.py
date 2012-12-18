@@ -74,7 +74,7 @@ def test_math():
 
 def test_pc():
 	a = strip_program("""
-	# # # # 1;Whatever;11
+	# # # # 1;Whatever;2j789
 	""")
 	program = BefungeProgram(text=a)
 	thread = program.threads[0]
@@ -84,6 +84,9 @@ def test_pc():
 	# Jump_over
 	program.step()
 	assert thread.pc == (19,0)
+	# Jump by two
+	program.step(2)
+	assert thread.pc == (23,0)
 
 def test_logic():
 	a = strip_program("""

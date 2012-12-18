@@ -198,6 +198,12 @@ class BefungeOps(object):
                 thread.pc = program.text.get_next_pc(thread.pc, thread.direction)
                 return
 
+    def op_jump(program, thread):
+        """Pop a and jump that many cells forward
+        """
+        a = thread.stack.pop()
+        thread.pc = program.text.jump(thread.pc, thread.direction, a)
+
     def op_put(program, thread):
         """Pop y,x,v and put value v at position x,y
         """
@@ -275,7 +281,7 @@ class BefungeOps(object):
         '?': op_move_random,
         # PC
         '#': op_trampoline, ';': op_jump_over,
-        'j': op_not_implemented,'k': op_not_implemented,
+        'j': op_jump,'k': op_not_implemented,
         # Stack
         ':': op_duplicate, '\\': op_swap, 
         '$': op_pop, 'n': op_clear_stack,
