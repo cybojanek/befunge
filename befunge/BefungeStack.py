@@ -6,7 +6,7 @@ class BefungeStack(object):
     def __init__(self):
         self.clear()
 
-    def push(self,a):
+    def push(self, a):
         """Push a value onto the stack
 
         """
@@ -30,7 +30,7 @@ class BefungeStack(object):
         if(len(self.stack) > 0):
             return self.stack[-1]
         else:
-            return 0 
+            return 0
 
     def clear(self):
         """Clear contents of stack
@@ -51,4 +51,4 @@ class BefungeStack(object):
         """Comma seperated values: ASCII if visible
 
         """
-        return ','.join([repr(chr(x)) if x<=255 and x>=0 else str(x) for x in self.stack])
+        return ','.join([repr(chr(x)) if x <= 255 and x >= 0 else str(x) for x in self.stack])

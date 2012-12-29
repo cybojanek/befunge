@@ -1,5 +1,6 @@
 from BefungeCommon import Direction
 
+
 class BefungeText(object):
     """Holds contents of befunge program.
 
@@ -14,7 +15,7 @@ class BefungeText(object):
 
         """
         self.text = []
-        self._load_program(name,text)
+        self._load_program(name, text)
 
     def _load_program(self, name=None, text=None):
         """Load the contents of file row by row
@@ -55,7 +56,7 @@ class BefungeText(object):
         value = list of characters
 
         """
-        if value==None:
+        if value == None:
             self.text.append([])
         else:
             self.text.append(value)
@@ -89,11 +90,11 @@ class BefungeText(object):
             for r in xrange(self._number_of_rows(), y):
                 self._add_row()
             # Add row, left padded with whitespace
-            self._add_row(list("%s%s" % (" " * (x), z)))
+            self._add_row(list("%s" % (" " * (x))) + [z])
         # Else if y is past the current row length
         elif(x >= self._length_of_row(y)):
             # Append whitespace and value
-            self.text[y] = self.text[y] + list("%s%s" % (" " * (x - self._length_of_row(y)), z))
+            self.text[y] = self.text[y] + list("%s" % (" " * (x - self._length_of_row(y)))) + [z]
         # Otherwise modify whats currently there
         else:
             self.text[y][x] = z
@@ -105,39 +106,39 @@ class BefungeText(object):
 
         """
         op = ' '
-        x,y = pc
+        x, y = pc
         # For befunge98, we skip all whitespace with zero ticks
         while op == ' ':
             # If left or right, just mod with current row length
             if direction == Direction.RIGHT:
-                x,y = ((x+1) % self._length_of_row(y), y)
+                x, y = ((x + 1) % self._length_of_row(y), y)
             # Negative values work the way we want :-)
             elif direction == Direction.LEFT:
-                x,y = ((x-1) % self._length_of_row(y), y)
+                x, y = ((x - 1) % self._length_of_row(y), y)
             elif direction == Direction.DOWN:
-                x,y = (x, (y+1) % self._number_of_rows())
+                x, y = (x, (y + 1) % self._number_of_rows())
             elif direction == Direction.UP:
-                x,y = (x, (y-1) % self._number_of_rows())
-            op = self.get(x,y)
+                x, y = (x, (y - 1) % self._number_of_rows())
+            op = self.get(x, y)
             # Don't skip whitespace
             if not skip:
                 break
             #print "%s,%s,%s,%s" % (op, pc, direction, op == ' ')
-        return (x,y)
+        return (x, y)
 
     def jump(self, pc, direction, j):
         """Jump over that many cells
 
         """
-        x,y = pc
+        x, y = pc
         if direction == Direction.RIGHT:
-            return ((x+j) % self._length_of_row(y), y)
+            return ((x + j) % self._length_of_row(y), y)
         elif direction == Direction.LEFT:
-            return ((x-j) % self._length_of_row(y), y)
+            return ((x - j) % self._length_of_row(y), y)
         elif direction == Direction.DOWN:
-            return (x, (y+j) % self._number_of_rows())
+            return (x, (y + j) % self._number_of_rows())
         elif direction == Direction.UP:
-            return (x, (y-j) % self._number_of_rows())
+            return (x, (y - j) % self._number_of_rows())
 
     def __str__(self):
         ret = ''

@@ -1,11 +1,10 @@
-import time, termcolor, random, sys
+import time
 
 from BefungeStack import BefungeStack
 from BefungeText import BefungeText
 from BefungeCommon import Direction, Color, BefungeMode
-from BefungeCommon import IllegalOpCodeException, OpCodeNotImplemented
+from BefungeCommon import IllegalOpCodeException
 from BefungeOps import BefungeOps
-
 
 
 class BefungeThread(object):
@@ -14,12 +13,13 @@ class BefungeThread(object):
 
     """
 
-    def __init__(self,pc,direction):
+    def __init__(self, pc, direction):
         self.stack = BefungeStack()
         self.pc = pc
         self.direction = direction
         self.op = ' '
         self.mode = BefungeMode.OP
+
 
 class BefungeProgram(object):
     """Holds the state of a befunge program and runs it
@@ -34,8 +34,8 @@ class BefungeProgram(object):
         operations_per_second - how many befunge ops a second, default=unlimited
 
         """
-        self.threads = [BefungeThread((0,0),Direction.RIGHT)]
-        self.text = BefungeText(name,text)
+        self.threads = [BefungeThread((0, 0), Direction.RIGHT)]
+        self.text = BefungeText(name, text)
         self.stdout_log = ''
         self.show_steps = show_steps
         self.operations_per_second = operations_per_second
@@ -52,7 +52,7 @@ class BefungeProgram(object):
                 thread.op = self.text.get(*thread.pc)
                 # In op mode, so check opcode
                 if thread.mode == BefungeMode.OP and not thread.op in BefungeOps.op_map:
-                    raise IllegalOpCodeException('%s,%s: %s' % (self.pc[0],self.pc[1], self.op))
+                    raise IllegalOpCodeException('%s,%s: %s' % (self.pc[0], self.pc[1], self.op))
                 elif thread.mode == BefungeMode.OP:
                     BefungeOps.op_map[thread.op](self, thread)
                 # In ascii mode
@@ -81,7 +81,7 @@ class BefungeProgram(object):
         # Get next position, otherwise child thread will be on 't' op again
         pc = self.text.get_next_pc(thread.pc, direction)
         # Prepend child
-        self.threads.insert(0,BefungeThread(pc, direction))
+        self.threads.insert(0, BefungeThread(pc, direction))
 
     def run(self):
         """Step through program
@@ -91,7 +91,7 @@ class BefungeProgram(object):
             if self.show_steps:
                 self.show_program()
             if self.operations_per_second != 0:
-                time.sleep(1.0/self.operations_per_second)
+                time.sleep(1.0 / self.operations_per_second)
             self.step()
         print ""
 
@@ -100,12 +100,12 @@ class BefungeProgram(object):
 
         """
         # Divider
-        print Color.blue('#'*80)
+        print Color.blue('#' * 80)
         # Code header
         print "%s" % Color.yellow_dark("Code:")
         # Code
         # Rows with pcs
-        pcs = { }
+        pcs = {}
         for thread in self.threads:
             row = thread.pc[1]
             if row in pcs:
@@ -129,6 +129,3 @@ class BefungeProgram(object):
         # Aggregated stdout
         print "%s %s" % (Color.yellow_dark("Stdout:"), self.stdout_log),
         print ""
-
-
-    

@@ -1,10 +1,12 @@
-import sys, random
+import random
+import sys
 
 from BefungeCommon import OpCodeNotImplemented
 from BefungeCommon import Direction, BefungeMode
 
+
 class BefungeOps(object):
-  
+
     @staticmethod
     def pseudo_op_ascii_mode(program, thread):
         """Get int value of ascii char at current pc location
@@ -15,14 +17,14 @@ class BefungeOps(object):
         """Push an integer onto the stack
         """
         # Get int value in base 16
-        thread.stack.push(int(thread.op,16))
-    
+        thread.stack.push(int(thread.op, 16))
+
     def op_addition(program, thread):
         """Pop a,b then push a+b
         """
         stack = thread.stack
         stack.push(stack.pop() + stack.pop())
-  
+
     def op_subtraction(program, thread):
         """Pop a,b then push b-a
         """
@@ -30,27 +32,27 @@ class BefungeOps(object):
         a = stack.pop()
         b = stack.pop()
         stack.push(b - a)
-      
+
     def op_division(program, thread):
         """Pop a,b then push b/a
         """
         stack = thread.stack
-        a,b = stack.pop(), stack.pop()
-        stack.push(b/a)
-       
+        a, b = stack.pop(), stack.pop()
+        stack.push(b / a)
+
     def op_multiplication(program, thread):
         """Pop a,b then push a*b
         """
         stack = thread.stack
         stack.push(stack.pop() * stack.pop())
-      
+
     def op_modulo(program, thread):
         """Pop a,b then push b%a
         """
         stack = thread.stack
-        a,b = stack.pop(), stack.pop()
-        stack.push(b%a)
-      
+        a, b = stack.pop(), stack.pop()
+        stack.push(b % a)
+
     def op_logical_not(program, thread):
         """Pop a, if a==0 push 1, else push 0
         """
@@ -60,42 +62,42 @@ class BefungeOps(object):
             stack.push(1)
         else:
             stack.push(0)
-       
+
     def op_greater_than(program, thread):
         """Pop a,b, if b>a push 1, else push 0
         """
         stack = thread.stack
-        a,b = stack.pop(), stack.pop()
+        a, b = stack.pop(), stack.pop()
         if b > a:
             stack.push(1)
         else:
             stack.push(0)
-       
+
     def op_move_right(program, thread):
         """Change direction to right
         """
         thread.direction = Direction.RIGHT
-     
+
     def op_move_left(program, thread):
         """Change direction to right
         """
         thread.direction = Direction.LEFT
-     
+
     def op_move_up(program, thread):
         """Change direction to up
         """
         thread.direction = Direction.UP
-      
+
     def op_move_down(program, thread):
         """Change direction to down
         """
         thread.direction = Direction.DOWN
-       
+
     def op_move_random(program, thread):
         """Change direction to random
         """
-        thread.direction = Direction.ALL[random.randint(0,len(Direction.ALL)-1)]
-       
+        thread.direction = Direction.ALL[random.randint(0, len(Direction.ALL) - 1)]
+
     def op_move_horizontal(program, thread):
         """Pop value, move right if 0, otherwise left
         """
@@ -103,7 +105,7 @@ class BefungeOps(object):
             thread.direction = Direction.RIGHT
         else:
             thread.direction = Direction.LEFT
-      
+
     def op_move_vertical(program, thread):
         """Pop value, move down if 0, otherwise up
         """
@@ -126,7 +128,7 @@ class BefungeOps(object):
         """Pop a,b, if a<b then [ elif b>a then ] else nothing
         """
         stack = thread.stack
-        b,a = stack.pop(), stack.pop()
+        b, a = stack.pop(), stack.pop()
         if a < b:
             BefungeOps.op_map['['](program, thread)
         elif b < a:
@@ -141,12 +143,12 @@ class BefungeOps(object):
             thread.mode = BefungeMode.OP
         else:
             thread.mode = BefungeMode.ASCII
-       
+
     def op_duplicate(program, thread):
         """Duplicate value on top of stack
         """
         thread.stack.push(thread.stack.peek())
-      
+
     def op_swap(program, thread):
         """Swap two values on top of stack
         """
@@ -154,7 +156,7 @@ class BefungeOps(object):
         a, b = stack.pop(), stack.pop()
         stack.push(a)
         stack.push(b)
-      
+
     def op_pop(program, thread):
         """Pop value from stack
         """
@@ -164,7 +166,7 @@ class BefungeOps(object):
         """Clear all values from stack
         """
         thread.stack.clear()
-       
+
     def op_print_int(program, thread):
         """Pop a and print as integer
         """
@@ -173,7 +175,7 @@ class BefungeOps(object):
             program.stdout_log += a
         else:
             sys.stdout.write(a)
-      
+
     def op_print_chr(program, thread):
         """Pop a and print as chr
         """
@@ -182,12 +184,12 @@ class BefungeOps(object):
             program.stdout_log += a
         else:
             sys.stdout.write(a)
-      
+
     def op_trampoline(program, thread):
         """Skip next cell
         """
         thread.pc = program.text.get_next_pc(thread.pc, thread.direction, skip=False)
-      
+
     def op_jump_over(program, thread):
         """Toggle jump mode caused by ;
         """
@@ -208,20 +210,20 @@ class BefungeOps(object):
         """Pop y,x,v and put value v at position x,y
         """
         stack = thread.stack
-        y,x,v = stack.pop(), stack.pop(), stack.pop()
-        program.text.put(y,x,v)
-      
+        y, x, v = stack.pop(), stack.pop(), stack.pop()
+        program.text.put(x, y, v)
+
     def op_get(program, thread):
         """Pop y,x and push ascii value of that char onto stack
         """
         stack = thread.stack
-        y,x = stack.pop(), stack.pop()
-        v = program.text.get(x,y)
+        y, x = stack.pop(), stack.pop()
+        v = program.text.get(x, y)
         if type(v) is str:
             stack.push(ord(v))
         else:
             stack.push(v)
-      
+
     def op_input_int(program, thread):
         """Ask user for integer input and push on stack
         """
@@ -233,17 +235,17 @@ class BefungeOps(object):
             except ValueError:
                 pass
         thread.stack.push(a)
-    
+
     def op_input_chr(program, thread):
         """Ask user for a single char and push on stack
         """
         thread.stack.push(ord(raw_input()[0]))
-     
+
     def op_noop(program, thread):
         """Do nothing
         """
         pass
-         
+
     def op_split(program, thread):
         """Create andother thread with same PC but opposite direction
         """
@@ -253,7 +255,7 @@ class BefungeOps(object):
         """Mark program as finished
         """
         thread.mode = BefungeMode.FINISHED
-      
+
     def op_not_implemented(program, thread):
         """Raise error for non-implemented opcodes
         """
@@ -283,7 +285,7 @@ class BefungeOps(object):
         '#': op_trampoline, ';': op_jump_over,
         'j': op_jump,'k': op_not_implemented,
         # Stack
-        ':': op_duplicate, '\\': op_swap, 
+        ':': op_duplicate, '\\': op_swap,
         '$': op_pop, 'n': op_clear_stack,
         'u': op_not_implemented,
         # I/O
