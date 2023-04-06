@@ -45,7 +45,7 @@ class BefungeProgram(object):
         Get pc value and tell handl_operator to run it
 
         """
-        for step in xrange(steps):
+        for step in range(steps):
             # Make duplicate in case we split
             # TODO: Is there a nicer way?
             for thread in self.threads[:]:
@@ -93,16 +93,16 @@ class BefungeProgram(object):
             if self.operations_per_second != 0:
                 time.sleep(1.0 / self.operations_per_second)
             self.step()
-        print ""
+        print("")
 
     def show_program(self):
         """Print terminal colored program status
 
         """
         # Divider
-        print Color.blue('#' * 80)
+        print(Color.blue('#' * 80))
         # Code header
-        print "%s" % Color.yellow_dark("Code:")
+        print("%s" % Color.yellow_dark("Code:"))
         # Code
         # Rows with pcs
         pcs = {}
@@ -113,7 +113,7 @@ class BefungeProgram(object):
             else:
                 pcs[row] = [thread.pc[0]]
         # Loop throw rows of code
-        for i in xrange(len(self.text.text)):
+        for i in range(len(self.text.text)):
             row = self.text.text[i]
             # This line contains our pc
             if i in pcs:
@@ -121,11 +121,11 @@ class BefungeProgram(object):
                 row = row[::]
                 for pc in pcs[i]:
                     row[pc] = Color.grey_on_green(row[pc])
-            print ''.join([str(x) for x in row])
+            print(''.join([str(x) for x in row]))
         # Stack
         for thread in self.threads:
-            print "%s %s" % (Color.yellow_dark("Stack N:"), thread.stack)
-            print "%s %r" % (Color.yellow_dark("Stack A:"), thread.stack)
+            print("%s %s" % (Color.yellow_dark("Stack N:"), thread.stack))
+            print("%s %r" % (Color.yellow_dark("Stack A:"), thread.stack))
         # Aggregated stdout
-        print "%s %s" % (Color.yellow_dark("Stdout:"), self.stdout_log),
-        print ""
+        print("%s %s" % (Color.yellow_dark("Stdout:"), self.stdout_log), end="")
+        print("")

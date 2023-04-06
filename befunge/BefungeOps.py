@@ -230,7 +230,7 @@ class BefungeOps(object):
         is_int = False
         while(not is_int):
             try:
-                a = int(raw_input())
+                a = int(input())
                 is_int = True
             except ValueError:
                 pass
@@ -239,7 +239,7 @@ class BefungeOps(object):
     def op_input_chr(program, thread):
         """Ask user for a single char and push on stack
         """
-        thread.stack.push(ord(raw_input()[0]))
+        thread.stack.push(ord(input()[0]))
 
     def op_noop(program, thread):
         """Do nothing
